@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns="http://tizen.org/ns/packages" package="org.tizen.voice-setting" version="0.1" install-location="internal-only" api-version="2.4">
+        <label>Voice setting</label>
+        <author email="ky85.kim@samsung.com" href="www.samsung.com">Kwangyoun Kim</author>
+        <description>Voice setting Application</description>
+        <ui-application appid="org.tizen.voice-setting" exec="/usr/apps/org.tizen.voice-setting/bin/voice-setting" nodisplay="true" multiple="true" type="capp" taskmanage="false" process-pool="true">
+            <label>Voice setting</label>
+            <label xml:lang="en-us">Voice setting</label>
+       </ui-application>
+        <privileges>
+            <privilege>http://tizen.org/privilege/appmanager.launch</privilege>
+            <privilege>http://tizen.org/privilege/recorder</privilege>
+        </privileges>
+</manifest>

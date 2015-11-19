@@ -1,0 +1,19 @@
+<manifest>
+    <define>
+        <domain name="org.tizen.voice-setting" />
+    </define>
+    <request>
+        <domain name="org.tizen.voice-setting" />
+    </request>
+    <assign>
+        <!-- Package manifest file -->
+        <filesystem path="/usr/share/packages/org.tizen.voice-setting.xml" label="_" />
+
+        <!-- Package folder -->
+        <filesystem path="/usr/apps/org.tizen.voice-setting" label="org.tizen.voice-setting" />
+        <filesystem path="/usr/apps/org.tizen.voice-setting/res" label="org.tizen.voice-setting" />
+
+        <!-- Executable file -->
+        <filesystem path="/usr/apps/org.tizen.voice-setting/bin/voice-setting" label="org.tizen.voice-setting" exec_label="org.tizen.voice-setting" />
+    </assign>
+</manifest>
