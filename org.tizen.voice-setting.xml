@@ -3,7 +3,7 @@
         <label>Voice setting</label>
         <author email="ky85.kim@samsung.com" href="www.samsung.com">Kwangyoun Kim</author>
         <description>Voice setting Application</description>
-        <ui-application appid="org.tizen.voice-setting" exec="/usr/apps/org.tizen.voice-setting/bin/voice-setting" nodisplay="true" multiple="true" type="capp" taskmanage="false" process-pool="true">
+        <ui-application appid="org.tizen.voice-setting" launch_mode="caller" exec="voice-setting" hw-acceleration="use-GL" nodisplay="true" multiple="false" type="capp" taskmanage="false">
             <label>Voice setting</label>
             <label xml:lang="en-us">Voice setting</label>
        </ui-application>
