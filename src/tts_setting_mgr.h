@@ -25,7 +25,7 @@ extern "C" {
 #endif
 
 typedef struct{
-	const char* language;
+	char* language;
 	int voice_type;
 }tts_voice_s;
 

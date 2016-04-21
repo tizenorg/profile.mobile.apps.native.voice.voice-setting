@@ -19,6 +19,7 @@
 #include <stdbool.h>
 
 #include "voice_setting_main.h"
+#include "voice_setting_language.h"
 #include "vc_setting_view.h"
 #include "vc_setting_mgr.h"
 
@@ -76,13 +77,14 @@ static char *__vc_setting_view_onoff_text_get(void *data, Evas_Object *obj, cons
 static char *__vc_setting_view_language_text_get(void *data, Evas_Object *obj, const char *part)
 {
 	if (!strcmp("elm.text", part)) {
-		int idx = (int *)data;
+		intptr_t pidx = (intptr_t)data;
+		int idx = (int)pidx;
 		GList *iter = g_list_nth(g_vc_language_list, idx);
 		if (NULL != iter) {
 			char *lang = iter->data;
 			char *conv = voice_setting_language_conv_id_to_lang(lang);
 			if (NULL != conv) {
-					return strdup(conv);
+				return strdup(conv);
 			}
 		}
 	}
@@ -115,11 +117,12 @@ static Evas_Object *__vc_setting_view_onoff_content_get(void *data, Evas_Object 
 
 static void __vc_setting_view_radio_cb(void *data, Evas_Object *obj, void *event_info)
 {
-	int idx = (int *)data;
+	intptr_t pidx = (intptr_t)data;
+	int idx = (int)pidx;
 	elm_radio_value_set(g_vc_language_radio_group, idx);
 }
 
-static void __vc_setting_view_radio_group_del_cb(void *data, Evas_Object *obj, void *event_info)
+static void __vc_setting_view_radio_group_del_cb(void *data, Evas *e, Evas_Object *obj, void *event_info)
 {
 	LOGD("");
 	g_vc_language_radio_group = NULL;
@@ -127,7 +130,8 @@ static void __vc_setting_view_radio_group_del_cb(void *data, Evas_Object *obj, v
 
 static Evas_Object *__vc_setting_view_language_content_get(void *data, Evas_Object *obj, const char *part)
 {
-	int idx = (int *)data;
+	intptr_t pidx = (intptr_t)data;
+	int idx = (int)pidx;
 
 	if (!strcmp("elm.swallow.icon.1", part)) {
 		Evas_Object *radio = elm_radio_add(obj);
@@ -172,7 +176,8 @@ static void __vc_setting_view_language_clicked_cb(void *data, Evas_Object *obj, 
 	Elm_Object_Item *item = (Elm_Object_Item *)event_info;
 	elm_genlist_item_selected_set(item, EINA_FALSE);
 
-	int idx = (int *)data;
+	intptr_t pidx = (intptr_t)data;
+	int idx = (int)pidx;
 	if (idx != g_vc_language_radio_mark) {
 		g_vc_language_radio_mark = idx;
 		elm_radio_value_set(g_vc_language_radio_group, idx);

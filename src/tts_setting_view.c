@@ -96,7 +96,7 @@ static char *__tts_setting_view_language_text_get(void *data, Evas_Object *obj, 
 				char text[256] = {'\0', };
 				if (!strcmp(lang, "Automatic")) {
 					if (0 != g_tts_voice_radio_mark) {
-						snprintf(text, 256, _("IDS_VC_BODY_AUTOMATIC"));
+						snprintf(text, 256, "%s", _("IDS_VC_BODY_AUTOMATIC"));
 					} else {
 						char *cur_lang = NULL;
 						int cur_type;
@@ -117,14 +117,15 @@ static char *__tts_setting_view_language_text_get(void *data, Evas_Object *obj, 
 	return NULL;
 }
 
-static void __tts_setting_view_radio_cb(void *data, Evas_Object *obj, const char *part)
+static void __tts_setting_view_radio_cb(void *data, Evas_Object *obj, void *event_info)
 {
-	int idx = (int *)data;
+	intptr_t pidx = (intptr_t)data;
+	int idx = (int)pidx;
 
 	elm_radio_value_set(g_tts_voice_radio_group, idx);
 }
 
-static void __tts_setting_view_radio_group_del_cb(void *data, Evas_Object *obj, const char *part)
+static void __tts_setting_view_radio_group_del_cb(void *data, Evas *e, Evas_Object *obj, void *event_info)
 {
 	LOGD("");
 	g_tts_voice_radio_group = NULL;
@@ -132,7 +133,9 @@ static void __tts_setting_view_radio_group_del_cb(void *data, Evas_Object *obj, 
 
 static Evas_Object *__tts_setting_view_language_content_get(void *data, Evas_Object *obj, const char *part)
 {
-	int idx = (int *)data;
+	intptr_t pidx = (intptr_t)data;
+	int idx = (int)pidx;
+
 	if (!strcmp("elm.swallow.icon.1", part)) {
 		Evas_Object *radio = elm_radio_add(obj);
 		elm_radio_state_value_set(radio, idx);
@@ -280,7 +283,8 @@ static void __tts_setting_view_language_clicked_cb(void *data, Evas_Object *obj,
 	Elm_Object_Item *item = (Elm_Object_Item *)event_info;
 	elm_genlist_item_selected_set(item, EINA_FALSE);
 
-	int idx = (int *)data;
+	intptr_t pidx = (intptr_t)data;
+	int idx = (int)pidx;
 	if (idx != g_tts_voice_radio_mark) {
 		g_tts_voice_radio_mark = idx;
 		elm_radio_value_set(g_tts_voice_radio_group, idx);
