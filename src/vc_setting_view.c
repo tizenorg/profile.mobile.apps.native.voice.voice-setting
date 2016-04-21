@@ -144,7 +144,7 @@ static Evas_Object *__vc_setting_view_language_content_get(void *data, Evas_Obje
 		} else {
 			elm_radio_group_add(radio, g_vc_language_radio_group);
 		}
-		evas_object_smart_callback_add(radio, "changed", __vc_setting_view_radio_cb, (void *)idx);
+		evas_object_smart_callback_add(radio, "changed", __vc_setting_view_radio_cb, (void *)pidx);
 
 		if (idx == g_vc_language_radio_mark) {
 			elm_radio_value_set(g_vc_language_radio_group, g_vc_language_radio_mark);
@@ -249,7 +249,8 @@ void vc_setting_view_create(void *data)
 	/* Language */
 	int i;
 	for (i = 0; i < g_list_length(g_vc_language_list); i++) {
-		elm_genlist_item_append(ad->genlist, g_itc_voice_control_language, (void *)i, NULL, ELM_GENLIST_ITEM_NONE, __vc_setting_view_language_clicked_cb, (void *)i);
+		intptr_t pi = (intptr_t)i;
+		elm_genlist_item_append(ad->genlist, g_itc_voice_control_language, (void *)pi, NULL, ELM_GENLIST_ITEM_NONE, __vc_setting_view_language_clicked_cb, (void *)pi);
 	}
 }
 

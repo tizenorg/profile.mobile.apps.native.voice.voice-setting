@@ -147,7 +147,7 @@ static Evas_Object *__tts_setting_view_language_content_get(void *data, Evas_Obj
 		} else {
 			elm_radio_group_add(radio, g_tts_voice_radio_group);
 		}
-		evas_object_smart_callback_add(radio, "changed", __tts_setting_view_radio_cb, (void *)idx);
+		evas_object_smart_callback_add(radio, "changed", __tts_setting_view_radio_cb, (void *)pidx);
 
 		if (idx == g_tts_voice_radio_mark) {
 			elm_radio_value_set(g_tts_voice_radio_group, g_tts_voice_radio_mark);
@@ -390,7 +390,8 @@ void tts_setting_view_create(void *data)
 	/* Language */
 	int i;
 	for (i = 0; i < g_list_length(g_tts_voice_list); i++) {
-		item = elm_genlist_item_append(ad->genlist, g_itc_tts_language, (void *)i, NULL, ELM_GENLIST_ITEM_NONE, __tts_setting_view_language_clicked_cb, (void *)i);
+		intptr_t pi = (intptr_t)i;
+		item = elm_genlist_item_append(ad->genlist, g_itc_tts_language, (void *)pi, NULL, ELM_GENLIST_ITEM_NONE, __tts_setting_view_language_clicked_cb, (void *)pi);
 		if (0 == i) {
 			ad->tts_lang_auto = item;
 		}
