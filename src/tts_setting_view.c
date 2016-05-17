@@ -117,14 +117,6 @@ static char *__tts_setting_view_language_text_get(void *data, Evas_Object *obj, 
 	return NULL;
 }
 
-static void __tts_setting_view_radio_cb(void *data, Evas_Object *obj, void *event_info)
-{
-	intptr_t pidx = (intptr_t)data;
-	int idx = (int)pidx;
-
-	elm_radio_value_set(g_tts_voice_radio_group, idx);
-}
-
 static void __tts_setting_view_radio_group_del_cb(void *data, Evas *e, Evas_Object *obj, void *event_info)
 {
 	LOGD("");
@@ -139,7 +131,7 @@ static Evas_Object *__tts_setting_view_language_content_get(void *data, Evas_Obj
 	if (!strcmp("elm.swallow.icon.1", part)) {
 		Evas_Object *radio = elm_radio_add(obj);
 		elm_radio_state_value_set(radio, idx);
-		evas_object_propagate_events_set(radio, EINA_FALSE);
+		evas_object_propagate_events_set(radio, EINA_TRUE);
 
 		if (NULL == g_tts_voice_radio_group) {
 			g_tts_voice_radio_group = radio;
@@ -147,7 +139,6 @@ static Evas_Object *__tts_setting_view_language_content_get(void *data, Evas_Obj
 		} else {
 			elm_radio_group_add(radio, g_tts_voice_radio_group);
 		}
-		evas_object_smart_callback_add(radio, "changed", __tts_setting_view_radio_cb, (void *)pidx);
 
 		if (idx == g_tts_voice_radio_mark) {
 			elm_radio_value_set(g_tts_voice_radio_group, g_tts_voice_radio_mark);

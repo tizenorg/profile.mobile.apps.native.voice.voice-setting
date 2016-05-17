@@ -91,12 +91,6 @@ static char *__vc_setting_view_language_text_get(void *data, Evas_Object *obj, c
 	return NULL;
 }
 
-static void __vc_setting_view_onoff_cb(void *data, Evas_Object *obj, void *event_info)
-{
-	Eina_Bool state = elm_check_state_get(obj);
-	vc_setting_mgr_set_enabled(state);
-}
-
 static Evas_Object *__vc_setting_view_onoff_content_get(void *data, Evas_Object *obj, const char *part)
 {
 	if (!strcmp("elm.swallow.icon.1", part)) {
@@ -107,19 +101,11 @@ static Evas_Object *__vc_setting_view_onoff_content_get(void *data, Evas_Object 
 		vc_setting_mgr_get_enabled(&state);
 		elm_check_state_set(check, state);
 
-		evas_object_propagate_events_set(check, EINA_FALSE);
-		evas_object_smart_callback_add(check, "changed", __vc_setting_view_onoff_cb, NULL);
+		evas_object_propagate_events_set(check, EINA_TRUE);
 		evas_object_show(check);
 		return check;
 	}
 	return NULL;
-}
-
-static void __vc_setting_view_radio_cb(void *data, Evas_Object *obj, void *event_info)
-{
-	intptr_t pidx = (intptr_t)data;
-	int idx = (int)pidx;
-	elm_radio_value_set(g_vc_language_radio_group, idx);
 }
 
 static void __vc_setting_view_radio_group_del_cb(void *data, Evas *e, Evas_Object *obj, void *event_info)
@@ -136,7 +122,7 @@ static Evas_Object *__vc_setting_view_language_content_get(void *data, Evas_Obje
 	if (!strcmp("elm.swallow.icon.1", part)) {
 		Evas_Object *radio = elm_radio_add(obj);
 		elm_radio_state_value_set(radio, idx);
-		evas_object_propagate_events_set(radio, EINA_FALSE);
+		evas_object_propagate_events_set(radio, EINA_TRUE);
 		
 		if (NULL == g_vc_language_radio_group) {
 			g_vc_language_radio_group = radio;
@@ -144,7 +130,6 @@ static Evas_Object *__vc_setting_view_language_content_get(void *data, Evas_Obje
 		} else {
 			elm_radio_group_add(radio, g_vc_language_radio_group);
 		}
-		evas_object_smart_callback_add(radio, "changed", __vc_setting_view_radio_cb, (void *)pidx);
 
 		if (idx == g_vc_language_radio_mark) {
 			elm_radio_value_set(g_vc_language_radio_group, g_vc_language_radio_mark);
