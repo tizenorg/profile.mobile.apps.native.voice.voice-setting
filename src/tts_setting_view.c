@@ -250,6 +250,7 @@ static Evas_Object *__tts_setting_view_speed_slider_content_get(void *data, Evas
 		elm_slider_indicator_show_set(slider, EINA_TRUE);
 		evas_object_size_hint_weight_set(slider, EVAS_HINT_EXPAND, 0.0);
 		evas_object_size_hint_align_set(slider, EVAS_HINT_FILL, 0.5);
+		evas_object_size_hint_min_set(slider, 0, 120);
 		elm_slider_indicator_format_set(slider, "%1.0f");
 		elm_slider_step_set(slider, 1);
 		elm_slider_min_max_set(slider, 1, 5);
