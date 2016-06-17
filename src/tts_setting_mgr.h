@@ -29,6 +29,12 @@ typedef struct{
 	int voice_type;
 }tts_voice_s;
 
+typedef struct{
+	char* engine_id;
+	char* engine_name;
+	char* setting_path;
+}tts_engine_info_s;
+
 int tts_setting_mgr_init(void *data);
 
 int tts_setting_mgr_deinit(void *data);
@@ -46,6 +52,12 @@ int tts_setting_mgr_get_speed(int* speed);
 int tts_setting_mgr_set_speed(int speed);
 
 GList* tts_setting_mgr_get_supported_voice();
+
+int tts_setting_mgr_get_engine(char** engine_id);
+
+GList* tts_setting_mgr_get_supported_engine();
+
+int tts_setting_mgr_get_current_engine_info(char* engine_id, char** engine_name, char** setting_path);
 
 #ifdef __cplusplus
 }

@@ -23,6 +23,7 @@
 static Elm_Genlist_Item_Class *g_itc_group_title = NULL;
 static Elm_Genlist_Item_Class *g_itc_tts_speed_slider = NULL;
 static Elm_Genlist_Item_Class *g_itc_tts_language = NULL;
+static Elm_Genlist_Item_Class *g_itc_tts_setting = NULL;
 
 static int g_tts_voice_radio_mark = 0;
 static Evas_Object *g_tts_voice_radio_group = NULL;
@@ -33,13 +34,37 @@ static GList* g_tts_voice_list = NULL;
 
 static appdata *g_ad;
 
-static char *g_voice_type_text[6][3] = {
-	{"Male", "Female", "Child"},
-	{"\xEB\x82\xA8", "\xEC\x97\xAC", "\xEC\x95\x84\xEC\x9D\xB4"},
-	{"Mannlich", "Weiblich", "Kind"},
-	{"Homme", "Femme", "Enfant"},
-	{"Maschio", "Femmina", "Bambino"},
-	{"Hombre", "Mujer", "Hijo"}
+static tts_engine_info_s *g_tts_engine = NULL;
+
+static char *g_voice_type_text[28][3] = {
+	{"Male", "Female", "Child"}, /* en_US */
+	{"\xEB\x82\xA8", "\xEC\x97\xAC", "\xEC\x95\x84\xEC\x9D\xB4"}, /* ko_KR */
+	{"Mannlich", "Weiblich", "Kind"}, /* de_DE */
+	{"Homme", "Femme", "Enfant"}, /* fr_FR */
+	{"Maschio", "Femmina", "Bambino"}, /* it_IT */
+	{"Hombre", "Mujer", "Hijo/a"}, /* es_ES */
+	{"\xE7\x94\xB7", "\xE5\xA5\xB3", "\xE5\xAD\x90\xE5\xA5\xB3"}, /* zh_CN */
+	{"Male", "Female", "Child"}, /* en_GB */
+	{"\xD0\x9C\xD1\x83\xD0\xB6\xD1\x81\xD0\xBA\xD0\xBE\xD0\xB9", "\xD0\x96\xD0\xB5\xD0\xBD\xD1\x81\xD0\xBA\xD0\xB8\xD0\xB9", "\xD0\xA0\xD0\xB5\xD0\xB1\xD0\xB5\xD0\xBD\xD0\xBE\xD0\xBA"}, /* ru_RU */
+	{"\xE7\x94\xB7\xE6\x80\xA7", "\xE5\xA5\xB3\xE6\x80\xA7", "\xE5\xAD\x90\xE4\xBE\x9B"}, /* ja_JP */
+	{"Masculino", "Feminino", "\x43\x72\x69\x61\x6e\xC3\xA7\x61"}, /* pt_BR */
+	{"Masculino", "Feminino", "\x43\x72\x69\x61\x6e\xC3\xA7\x61"}, /* pt_PT */
+	{"Hombre", "Mujer", "Hijo(a)"}, /* es_MX */
+	{"\xCE\x91\xCF\x81\xCF\x83\xCE\xB5\xCE\xBD\xCE\xB9\xCE\xBA\xCF\x8C", "\xCE\x98\xCE\xB7\xCE\xBB\xCF\x85\xCE\xBA\xCF\x8C", "\xCE\xA0\xCE\xB1\xCE\xB9\xCE\xB4\xCE\xAF"}, /* el_GR */
+	{"\xE7\x94\xB7", "\xE5\xA5\xB3", "\xE5\xAD\x90\xE5\xA5\xB3"}, /* zh_TW */
+	{"Mann", "Kvinne", "Barn"}, /* nb_NO */
+	{"\xE7\x94\xB7", "\xE5\xA5\xB3", "\xE5\xAD\x90\xE5\xA5\xB3"}, /* zh_HK */
+	{"\x4d\xC4\x99\xC5\xBC\x63\x7a\x79\x7a\x6e\x61", "Kobieta", "Dziecko"}, /* pl_PL */
+	{"\x46\xC3\xA9\x72\x66\x69", "\x4e\xC5\x91", "Gyermek"}, /* hu_HU */
+	{"\x4d\x75\xC5\xBE", "\xC5\xBD\x65\x6e\x61", "\x44\xC3\xAD\x74\xC4\x9B"}, /* cs_CZ */
+	{"Mies", "Nainen", "Lapsi"}, /* fi_FI */
+	{"\xE0\xA4\xAA\xE0\xA5\x81\xE0\xA4\xB0\xE0\xA5\x82\xE0\xA4\xB7", "\xE0\xA4\xB8\xE0\xA5\x8D\xE0\xA4\xA4\xE0\xA5\x8D\xE0\xA4\xB0\xE0\xA5\x80", "\xE0\xA4\xAC\xE0\xA4\x9A\xE0\xA5\x8D\xE0\xA4\x9A\xE0\xA4\xBE"}, /* hi_IN */
+	{"Male", "Female", "Child"}, /* en_IN */
+	{"Man", "Kvinna", "Barn"}, /* sv_SE */
+	{"Mand", "Kvinde", "Barn"}, /* da_DK */
+	{"Erkek", "\x4b\x61\x64\xC4\xB1\x6e", "\xC3\x87\x6f\x63\x75\x6b"}, /* tr_TR */
+	{"\x4d\x75\xC5\xBE", "\xC5\xBD\x65\x6e\x61", "\x44\x69\x65\xC5\xA5\x61"}, /* sk_SK */
+	{"Man", "Vrouw", "Kind"} /* nl_NL */
 };
 
 static char *__tts_setting_view_group_title_text_get(void *data, Evas_Object *obj, const char *part)
@@ -77,6 +102,50 @@ char *__tts_setting_view_conv_from_voice_type(const char *lang, int type)
 		return g_voice_type_text[4][type - 1];
 	} else if (!strcmp("es_ES", lang)) {
 		return g_voice_type_text[5][type - 1];
+	} else if (!strcmp("zh_CN", lang)) {
+		return g_voice_type_text[6][type - 1];
+	} else if (!strcmp("en_GB", lang)) {
+		return g_voice_type_text[7][type - 1];
+	} else if (!strcmp("ru_RU", lang)) {
+		return g_voice_type_text[8][type - 1];
+	} else if (!strcmp("ja_JP", lang)) {
+		return g_voice_type_text[9][type - 1];
+	} else if (!strcmp("pt_BR", lang)) {
+		return g_voice_type_text[10][type - 1];
+	} else if (!strcmp("pt_PT", lang)) {
+		return g_voice_type_text[11][type - 1];
+	} else if (!strcmp("es_MX", lang)) {
+		return g_voice_type_text[12][type - 1];
+	} else if (!strcmp("el_GR", lang)) {
+		return g_voice_type_text[13][type - 1];
+	} else if (!strcmp("zh_TW", lang)) {
+		return g_voice_type_text[14][type - 1];
+	} else if (!strcmp("nb_NO", lang)) {
+		return g_voice_type_text[15][type - 1];
+	} else if (!strcmp("zh_HK", lang)) {
+		return g_voice_type_text[16][type - 1];
+	} else if (!strcmp("pl_PL", lang)) {
+		return g_voice_type_text[17][type - 1];
+	} else if (!strcmp("hu_HU", lang)) {
+		return g_voice_type_text[18][type - 1];
+	} else if (!strcmp("cs_CZ", lang)) {
+		return g_voice_type_text[19][type - 1];
+	} else if (!strcmp("fi_FI", lang)) {
+		return g_voice_type_text[20][type - 1];
+	} else if (!strcmp("hi_IN", lang)) {
+		return g_voice_type_text[21][type - 1];
+	} else if (!strcmp("en_IN", lang)) {
+		return g_voice_type_text[22][type - 1];
+	} else if (!strcmp("sv_SE", lang)) {
+		return g_voice_type_text[23][type - 1];
+	} else if (!strcmp("da_DK", lang)) {
+		return g_voice_type_text[24][type - 1];
+	} else if (!strcmp("tr_TR", lang)) {
+		return g_voice_type_text[25][type - 1];
+	} else if (!strcmp("sk_SK", lang)) {
+		return g_voice_type_text[26][type - 1];
+	} else if (!strcmp("nl_NL", lang)) {
+		return g_voice_type_text[27][type - 1];
 	}
 
 	return NULL;
@@ -298,6 +367,41 @@ static void __tts_setting_view_language_clicked_cb(void *data, Evas_Object *obj,
 	elm_genlist_item_fields_update(g_ad->tts_lang_auto, "elm.text", ELM_GENLIST_ITEM_NONE);
 }
 
+static char *__tts_setting_view_setting_text_get(void *data, Evas_Object *obj, const char *part)
+{
+	if (!strcmp("elm.text", part)) {
+		return strdup("Engine setting");
+	}
+	return NULL;
+}
+
+static void __tts_setting_view_setting_clicked_cb(void *data, Evas_Object *obj, void *event_info)
+{
+	Elm_Object_Item *item = (Elm_Object_Item *)event_info;
+	elm_genlist_item_selected_set(item, EINA_FALSE);
+	
+	app_control_h app_control;
+	if (0 != app_control_create(&app_control)) {
+		LOGE("Fail to app control create");
+		return;
+	}
+
+	if (0 != app_control_set_app_id(app_control, g_tts_engine->setting_path)) {
+		LOGE("Fail to set app id");
+		app_control_destroy(app_control);
+		return;
+	}
+
+	if (0 != app_control_send_launch_request(app_control, NULL, NULL)) {
+		LOGE("Fail to send launch request");
+	} else {
+		LOGD("Send launch request");
+	}
+
+	app_control_destroy(app_control);
+
+}
+
 static void __tts_setting_view_speed_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 {
 	Elm_Object_Item *item = (Elm_Object_Item *)event_info;
@@ -325,13 +429,34 @@ void tts_setting_view_create(void *data)
 		tts_setting_mgr_get_voice(&lang, &voice_type);
 		g_tts_voice_radio_mark = __tts_setting_view_conv_voice_to_index(lang, voice_type);
 		if (NULL != lang) {
-				free(lang);
-				lang = NULL;
+			free(lang);
+			lang = NULL;
 		}
 	}
 
 	if (NULL != ad->genlist) {
 		elm_genlist_clear(ad->genlist);
+	}
+
+	GList *tmp_list = tts_setting_mgr_get_supported_engine();
+	if (NULL != tmp_list) {
+		g_tts_engine = (tts_engine_info_s *)calloc(1, sizeof(tts_engine_info_s));
+		if (NULL != g_tts_engine) {
+			if (0 != tts_setting_mgr_get_engine(&(g_tts_engine->engine_id))) {
+				LOGE("Fail to get engine");
+				return;
+			}
+			if (0 != tts_setting_mgr_get_current_engine_info(g_tts_engine->engine_id, &(g_tts_engine->engine_name), &(g_tts_engine->setting_path))) {
+				LOGE("Fail to get engine info");
+				return;
+			}
+		} else {
+			LOGE("Fail to memory allocation");
+			return;
+		}
+	} else {
+		LOGE("Fail to get engine list");
+		return;
 	}
 
 	g_itc_group_title = elm_genlist_item_class_new();
@@ -356,6 +481,17 @@ void tts_setting_view_create(void *data)
 	g_itc_tts_speed_slider->func.state_get = NULL;
 	g_itc_tts_speed_slider->func.del = NULL;
 
+	g_itc_tts_setting = elm_genlist_item_class_new();
+	if (NULL == g_itc_tts_setting) {
+		LOGE("Fail to item class new");
+		return;
+	}
+	g_itc_tts_setting->item_style = "type1";
+	g_itc_tts_setting->func.text_get = __tts_setting_view_setting_text_get;
+	g_itc_tts_setting->func.content_get = NULL;
+	g_itc_tts_setting->func.state_get = NULL;
+	g_itc_tts_setting->func.del = NULL;
+
 	g_itc_tts_language = elm_genlist_item_class_new();
 	if (NULL == g_itc_tts_language) {
 		LOGE("Fail to item class new");
@@ -368,6 +504,11 @@ void tts_setting_view_create(void *data)
 	g_itc_tts_language->func.del = NULL;
 
 	Elm_Object_Item *item = NULL;
+	/* Engine setting */
+	if (NULL != g_tts_engine->setting_path) {
+		elm_genlist_item_append(ad->genlist, g_itc_tts_setting, "setting", NULL, ELM_GENLIST_ITEM_NONE, __tts_setting_view_setting_clicked_cb, NULL);
+	}
+
 	/* Speed title */
 	item = elm_genlist_item_append(ad->genlist, g_itc_group_title, "speed", NULL, ELM_GENLIST_ITEM_NONE, NULL, NULL);
 	elm_genlist_item_select_mode_set(item, ELM_OBJECT_SELECT_MODE_DISPLAY_ONLY);
@@ -409,5 +550,28 @@ void tts_setting_view_destroy(void *data)
 	if (NULL != g_itc_tts_language) {
 		elm_genlist_item_class_free(g_itc_tts_language);
 		g_itc_tts_language = NULL;
+	}
+
+	if (NULL != g_itc_tts_setting) {
+		elm_genlist_item_class_free(g_itc_tts_setting);
+		g_itc_tts_setting = NULL;
+	}
+
+	if (NULL != g_tts_engine) {
+		if (NULL != g_tts_engine->engine_id) {
+			free(g_tts_engine->engine_id);
+			g_tts_engine->engine_id = NULL;
+		}
+		if (NULL != g_tts_engine->engine_name) {
+			free(g_tts_engine->engine_name);
+			g_tts_engine->engine_name = NULL;
+		}
+		if (NULL != g_tts_engine->setting_path) {
+			free(g_tts_engine->setting_path);
+			g_tts_engine->setting_path = NULL;
+		}
+
+		free(g_tts_engine);
+		g_tts_engine = NULL;
 	}
 }
