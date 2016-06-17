@@ -19,8 +19,12 @@
 
 #include "voice_setting_main.h"
 #include "tts_setting_mgr.h"
+#include "tts_setting_view.h"
 
 GList* g_tts_voice_list = NULL;
+GList* g_tts_engine_list = NULL;
+
+static appdata *g_ad = NULL;
 
 static bool __tts_setting_supported_voice_cb(const char* engine_id, const char* language, int voice_type, void* user_data)
 {
@@ -50,6 +54,13 @@ static void __tts_setting_speed_changed_cb(int speed, void *user_data)
 	LOGD("=== Speed changed to (%d)", speed);
 }
 
+static void __tts_setting_engine_changed_cb(const char* engine_id, void* user_data)
+{
+	LOGE("=== Engine changed to (%s)", engine_id);
+	tts_setting_view_destroy(g_ad);
+	tts_setting_view_create(g_ad);
+}
+
 int tts_setting_mgr_init(void *data)
 {
 	LOGD("=== TTS setting mgr init");
@@ -69,6 +80,12 @@ int tts_setting_mgr_init(void *data)
 		return -1;
 	}
 
+	if (0 != tts_setting_set_engine_changed_cb(__tts_setting_engine_changed_cb, NULL)) {
+		LOGE("Fail to set engien chagned cb");
+		return -1;
+	}
+
+	g_ad = (appdata *)data;
 	LOGD("===");
 	LOGD("");
 
@@ -113,6 +130,36 @@ int tts_setting_mgr_deinit(void *data)
 			g_tts_voice_list = g_list_remove_link(g_tts_voice_list, iter);
 
 			iter = g_list_first(g_tts_voice_list);
+		}
+	}
+
+	if (0 < g_list_length(g_tts_engine_list)) {
+		GList *iter = NULL;
+		iter = g_list_first(g_tts_engine_list);
+
+		while (NULL != iter) {
+			tts_engine_info_s *tmp = iter->data;
+
+			if (NULL != tmp) {
+				if (NULL != tmp->engine_id) {
+					free(tmp->engine_id);
+					tmp->engine_id = NULL;
+				}
+				if (NULL != tmp->engine_name) {
+					free(tmp->engine_name);
+					tmp->engine_name = NULL;
+				}
+				if (NULL != tmp->setting_path) {
+					free(tmp->setting_path);
+					tmp->setting_path = NULL;
+				}
+
+				free(tmp);
+			}
+
+			g_tts_engine_list = g_list_remove_link(g_tts_engine_list, iter);
+
+			iter = g_list_first(g_tts_engine_list);
 		}
 	}
 
@@ -231,4 +278,83 @@ GList* tts_setting_mgr_get_supported_voice()
 	LOGD("");
 
 	return g_tts_voice_list;
+}
+
+int tts_setting_mgr_get_engine(char** engine_id)
+{
+	LOGD("=== Get current engine");
+
+	if (NULL == engine_id) {
+		LOGE("Invalid parameter");
+		return -1;
+	}
+
+	if (0 != tts_setting_get_engine(engine_id)) {
+		LOGE("Fail to get engine");
+		return -1;
+	}
+
+	return 0;
+}
+
+static bool __tts_setting_supported_engine_cb(const char* engine_id, const char* engine_name, const char* setting_path, void* user_data)
+{
+	tts_engine_info_s *tmp = (tts_engine_info_s *)calloc(1, sizeof(tts_engine_info_s));
+	if (NULL == tmp) {
+		LOGE("Fail to memory allocation");
+		return false;
+	}
+
+	if (NULL != engine_id)		tmp->engine_id = strdup(engine_id);
+	if (NULL != engine_name)	tmp->engine_name = strdup(engine_name);
+	if (NULL != setting_path)	tmp->setting_path = strdup(setting_path);
+
+	g_tts_engine_list = g_list_append(g_tts_engine_list, tmp);
+
+	return true;
+}
+
+GList* tts_setting_mgr_get_supported_engine()
+{
+	LOGD("=== Foreach supported engines ===");
+
+	if (0 != tts_setting_foreach_supported_engines(__tts_setting_supported_engine_cb, NULL)) {
+		LOGE("Fail to get supported engines");
+	}
+
+	return g_tts_engine_list;
+}
+
+int tts_setting_mgr_get_current_engine_info(const char* engine_id, char** engine_name, char** setting_path)
+{
+	LOGD("=== Get current engine info ===");
+
+	if (NULL == engine_id || NULL == engine_name || NULL == setting_path) {
+		LOGE("Invalid parameter");
+		return -1;
+	}
+
+	if (0 < g_list_length(g_tts_engine_list)) {
+		GList *iter = NULL;
+		iter = g_list_first(g_tts_engine_list);
+
+		while (NULL != iter) {
+			tts_engine_info_s *tmp = iter->data;
+			
+			if (NULL != tmp) {
+				if (NULL != tmp->engine_id) {
+					if (!strcmp(tmp->engine_id, engine_id)) {
+						if (NULL != tmp->engine_name) {
+							*engine_name = strdup(tmp->engine_name);
+						}
+						if (NULL != tmp->setting_path) {
+							*setting_path = strdup(tmp->setting_path);
+						}
+					}
+				}
+			}
+			iter = g_list_next(iter);
+		}
+	}
+	return 0;
 }
