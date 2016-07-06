@@ -13,3 +13,5 @@ msgstr "Sterowanie głosem"
 msgid "IDS_ST_BODY_TTS"
 msgstr "TTS"
 
+msgid "IDS_VOICE_BODY_ENGINE_SETTINGS"
+msgstr "Ustawienia silnika"

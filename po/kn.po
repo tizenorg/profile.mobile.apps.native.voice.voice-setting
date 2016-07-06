@@ -13,3 +13,5 @@ msgstr "ಧ್ವನಿ ನಿಯಂತ್ರಣ"
 msgid "IDS_ST_BODY_TTS"
 msgstr "TTS"
 
+msgid "IDS_VOICE_BODY_ENGINE_SETTINGS"
+msgstr "ಎಂಜಿನ್ ಸಂಯೋಜನೆಗಳು"

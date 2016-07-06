@@ -370,7 +370,7 @@ static void __tts_setting_view_language_clicked_cb(void *data, Evas_Object *obj,
 static char *__tts_setting_view_setting_text_get(void *data, Evas_Object *obj, const char *part)
 {
 	if (!strcmp("elm.text", part)) {
-		return strdup("Engine setting");
+		return strdup(_("IDS_VOICE_BODY_ENGINE_SETTINGS"));
 	}
 	return NULL;
 }

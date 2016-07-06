@@ -13,3 +13,5 @@ msgstr "குரல் கட்டுப்பாடு"
 msgid "IDS_ST_BODY_TTS"
 msgstr "TTS"
 
+msgid "IDS_VOICE_BODY_ENGINE_SETTINGS"
+msgstr "என்ஜின் அமைவுகள்"

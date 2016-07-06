@@ -13,3 +13,5 @@ msgstr "ควบคุมด้วยเสียง"
 msgid "IDS_ST_BODY_TTS"
 msgstr "TTS"
 
+msgid "IDS_VOICE_BODY_ENGINE_SETTINGS"
+msgstr "การตั้งค่าเครื่องมือ"
